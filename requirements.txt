@@ -5,3 +5,6 @@ sqlalchemy
 asyncpg
 alembic
 pydantic-settings
+passlib
+bcrypt==3.2.2
+PyJWT
