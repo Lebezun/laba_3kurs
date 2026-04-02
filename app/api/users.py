@@ -1,49 +1,24 @@
-from fastapi import APIRouter, HTTPException
-from app.schemas.user import UserCreate, UserUpdate, UserResponse
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.schemas.user import UserCreate, UserResponse
+from app.db.session import get_db
+from app.crud import crud_user
 
 router = APIRouter()
 
-# Наша "база даних" - звичайний словник
-fake_db = {}
-current_id = 1
-
-
 @router.post("/", response_model=UserResponse)
-def create_user(user: UserCreate):
-    global current_id
-    new_user = {"id": current_id, **user.model_dump()}
-    fake_db[current_id] = new_user
-    current_id += 1
-    return new_user
-
+async def create_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
+    # Тепер ми зберігаємо не в словник, а в Postgres!
+    return await crud_user.create_user(db=db, user=user)
 
 @router.get("/", response_model=list[UserResponse])
-def get_all_users():
-    return list(fake_db.values())
-
+async def read_users(skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db)):
+    users = await crud_user.get_users(db, skip=skip, limit=limit)
+    return users
 
 @router.get("/{user_id}", response_model=UserResponse)
-def get_user(user_id: int):
-    if user_id not in fake_db:
+async def read_user(user_id: int, db: AsyncSession = Depends(get_db)):
+    db_user = await crud_user.get_user(db, user_id=user_id)
+    if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    return fake_db[user_id]
-
-
-@router.put("/{user_id}", response_model=UserResponse)
-def update_user(user_id: int, user: UserUpdate):
-    if user_id not in fake_db:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    stored_data = fake_db[user_id]
-    update_data = user.model_dump(exclude_unset=True)  # Оновлюємо тільки те, що передали
-    updated_user = {**stored_data, **update_data}
-    fake_db[user_id] = updated_user
-    return updated_user
-
-
-@router.delete("/{user_id}")
-def delete_user(user_id: int):
-    if user_id not in fake_db:
-        raise HTTPException(status_code=404, detail="User not found")
-    del fake_db[user_id]
-    return {"message": "User deleted successfully"}
+    return db_user
