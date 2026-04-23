@@ -1,7 +1,12 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.models.database import Category, Product
-from app.schemas.product import CategoryCreate, ProductCreate 
+from app.schemas.product import CategoryCreate, ProductCreate
+from app.core.metrics import (
+    products_created_total,
+    products_deleted_total,
+    categories_created_total
+)
 
 
 async def create_category(db: AsyncSession, category: CategoryCreate):
@@ -10,6 +15,10 @@ async def create_category(db: AsyncSession, category: CategoryCreate):
     db.add(db_category)
     await db.commit()
     await db.refresh(db_category)
+    
+    # Записуємо метрику
+    categories_created_total.inc()
+    
     return db_category
 
 
@@ -41,6 +50,10 @@ async def create_product(db: AsyncSession, product: ProductCreate):
     db.add(db_product)
     await db.commit()
     await db.refresh(db_product)
+    
+    # Записуємо метрику
+    products_created_total.inc()
+    
     return db_product
 
 
@@ -80,6 +93,9 @@ async def delete_product(db: AsyncSession, product_id: int):
     if product:
         await db.delete(product)
         await db.commit()
+        
+        # Записуємо метрику
+        products_deleted_total.inc()
     return product
 
 
@@ -91,3 +107,4 @@ async def delete_category(db: AsyncSession, category_id: int):
         await db.delete(category)
         await db.commit()
     return category
+

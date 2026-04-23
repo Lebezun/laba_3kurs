@@ -4,7 +4,11 @@ pydantic[email]
 sqlalchemy
 asyncpg
 alembic
-pydantic-settings\
+pydantic-settings
 pytest
 pytest-asyncio
 httpx
+prometheus-fastapi-instrumentator
+prometheus-client
+python-jose[cryptography]
+python-multipart

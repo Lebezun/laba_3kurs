@@ -2,6 +2,7 @@ import pytest
 from tests.conftest import client
 
 
+
 class TestCategoryEndpoints:
     """Тести endpoints для категорій"""
 
