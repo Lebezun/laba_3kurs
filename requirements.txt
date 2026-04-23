@@ -4,4 +4,7 @@ pydantic[email]
 sqlalchemy
 asyncpg
 alembic
-pydantic-settings
+pydantic-settings\
+pytest
+pytest-asyncio
+httpx
