@@ -2,4 +2,4 @@
 1. docker compose up --build
 2. docker compose up -d
 3. docker ps
-4. docker compose exec app pip list
+4. docker compose exec app poetry show

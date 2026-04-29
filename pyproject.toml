@@ -5,10 +5,19 @@ description = ""
 authors = [
     {name = "Your Name",email = "you@example.com"}
 ]
-requires-python = ">=3.14"
+requires-python = ">=3.11"
 dependencies = [
-    "fastapi (>=0.129.0,<0.130.0)",
-    "uvicorn (>=0.40.0,<0.41.0)"
+    "fastapi>=0.129.0",
+    "uvicorn>=0.40.0",
+    "pydantic[email]",
+    "sqlalchemy",
+    "asyncpg",
+    "alembic",
+    "pydantic-settings",
+    "prometheus-fastapi-instrumentator",
+    "prometheus-client",
+    "python-jose[cryptography]",
+    "python-multipart"
 ]
 
 
