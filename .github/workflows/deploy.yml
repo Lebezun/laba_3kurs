@@ -55,5 +55,9 @@ jobs:
             cd ~/labka
             git fetch origin prod
             git reset --hard origin/prod
+            # Видаляємо старі образи перед новим білдом, щоб звільнити місце
+            docker system prune -f 
             docker compose down
             docker compose up -d --build
+            # Видаляємо кеш білду після успішного запуску
+            docker image prune -f
