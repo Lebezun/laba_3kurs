@@ -27,7 +27,8 @@ jobs:
           poetry install --no-root
       - name: Run Pytest
         env:
-          TEST_DATABASE_URL: postgresql+asyncpg://user:password@localhost:5432/test_db
+          DATABASE_URL: postgresql+asyncpg://user:password@localhost:5432/test_db
+          SECRET_KEY: github_actions_secret_key_123
           PYTHONPATH: .
         run: poetry run pytest
 
