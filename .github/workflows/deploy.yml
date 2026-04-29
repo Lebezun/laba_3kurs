@@ -1,0 +1,48 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "prod" ] # Пайплайн спрацює при пуші в гілку prod
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres:15
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: test_db
+        ports: [5432:5432]
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          pip install poetry
+          poetry install --no-root
+      - name: Run Pytest
+        env:
+          TEST_DATABASE_URL: postgresql+asyncpg://user:password@localhost:5432/test_db
+        run: poetry run pytest
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to AWS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USER }}
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          script: |
+            cd ~/labka
+            git fetch origin prod
+            git reset --hard origin/prod
+            docker compose down
+            docker compose up -d --build
