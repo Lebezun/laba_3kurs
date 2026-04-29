@@ -18,17 +18,25 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
+      # ОСЬ ЦЕЙ КРОК ВИРІШИТЬ ПРОБЛЕМУ З ІМ'ЯМ 'db'
+      - name: Map db hostname to localhost
+        run: echo "127.0.0.1 db" | sudo tee -a /etc/hosts
+
       - name: Install dependencies
         run: |
           pip install poetry
           poetry install --no-root
+
       - name: Run Pytest
         env:
           DATABASE_URL: postgresql+asyncpg://user:password@localhost:5432/test_db
-          TEST_DATABASE_URL: postgresql+asyncpg://user:password@localhost:5432/test_db # ДОДАЛИ TEST_ ПЕРЕД НАЗВОЮ
+          TEST_DATABASE_URL: postgresql+asyncpg://user:password@localhost:5432/test_db
           SECRET_KEY: github_actions_secret_key_123
           PYTHONPATH: .
         run: poetry run pytest
