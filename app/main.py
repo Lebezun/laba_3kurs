@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import Response
 from prometheus_client import generate_latest, REGISTRY
 import time
+import asyncio
 
 from app.api.users import router as users_router
 from app.api.products import router as products_router
@@ -9,10 +10,15 @@ from app.api.metrics_endpoints import router as metrics_router
 from app.core.metrics import (
     http_requests_total, 
     http_request_duration_seconds,
-    http_errors_total
+    http_errors_total,
+    app_info
 )
+from app.db.session import AsyncSessionLocal
 
 app = FastAPI(title="Lab 7 - Monitoring")
+
+# Встановлюємо інформацію про додаток
+app_info.info({"version": "0.1.0", "service": "FastAPI Lab 7"})
 
 # Підключаємо роутери
 app.include_router(users_router, prefix="/users", tags=["Users"])
